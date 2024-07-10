@@ -138,10 +138,19 @@ crime_gdf = crime_gdf.to_crs(epsg=32610)
 coords = crime_gdf['geometry'].apply(lambda geom: (geom.x, geom.y)).tolist()
 
 
+# For the next lines I have experimented both DBSCAN and Mean Shift clustering algorithms
+# Mean Shift is a mode-seeking algorithm that iteratively shifts data points towards the mode in the feature space.
+# Time Complexity: O(T * n^2)
+# - n is the number of data points.
+# - T is the number of iterations until convergence.
+
+# While DBSCAN Optimized Implementation (using spatial indexing like KD-tree or Ball tree): O(n * log n) to O(n * log n^2)
+# # The average case complexity can be O(n * log n), but in the worst case, it can be O(n^2) if the points are very unevenly distributed.
+# Using Force Brute: O(n^2) will be pretty slow with this large dataset
 # Performing DBSCAN clustering
 eps = 250
 min_samples = 100
-dbscan = DBSCAN(eps=eps, min_samples=min_samples, algorithm= 'kd_tree')
+dbscan = DBSCAN(eps=eps, min_samples=min_samples, algorithm= 'kd_tree') #kd_tree and ball_tree gave the same results
 crime_gdf['cluster'] = dbscan.fit_predict(coords)
 
 # Analyzing the clusters
